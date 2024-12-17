@@ -1,0 +1,19 @@
+{
+  "name": "tp-sockets",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hajarjlilou/TP_archi.git"
+  },
+  "author": "Hajar Jlilou",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hajarjlilou/TP_archi/issues"
+  },
+  "homepage": "https://github.com/hajarjlilou/TP_archi#readme",
+  "description": ""
+}
