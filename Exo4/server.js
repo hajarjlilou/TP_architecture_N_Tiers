@@ -19,16 +19,15 @@ const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     buffer += data;
 
-    // Vérifier si l'utilisateur a appuyé sur Entrée
     if (buffer.includes("\n")) {
-      const message = buffer.trim(); // Supprimer les espaces et caractères superflus
-      buffer = ""; // Réinitialiser le tampon
+      const message = buffer.trim();
+      buffer = "";
 
       if (!userPseudo) {
         if (clients.some(client => client.pseudo === message)) {
           socket.write("Ce pseudo est deja utilise, choisissez-en un autre : \r\n");
         } else {
-          userPseudo = message.replace(/[^a-zA-Z0-9]/g, ""); // Nettoyer le pseudo
+          userPseudo = message.replace(/[^a-zA-Z0-9]/g, "");
           clients.push({ socket, pseudo: userPseudo });
           console.log(`--- ${userPseudo} a rejoint le chat.`);
           broadcast(`${userPseudo} a rejoint le chat.\r\n`, socket);
@@ -36,7 +35,7 @@ const server = net.createServer((socket) => {
         }
       } else {
         if (message.startsWith("/")) {
-          handleCommand(message, socket);
+          handleCommand(message, socket, userPseudo);
         } else {
           broadcast(`[${userPseudo}] : ${message}\r\n`, socket);
         }
@@ -45,7 +44,7 @@ const server = net.createServer((socket) => {
   });
 
   socket.on("end", () => {
-    console.log(`--- Déconnexion : ${userPseudo || clientAddress}`);
+    console.log(`--- Deconnexion : ${userPseudo || clientAddress}`);
     if (userPseudo) {
       clients.splice(clients.findIndex(client => client.socket === socket), 1);
       broadcast(`${userPseudo} a quitte le chat.\r\n`, socket);
@@ -57,19 +56,57 @@ const server = net.createServer((socket) => {
   });
 });
 
-function handleCommand(command, socket) {
-  const cleanCommand = command.trim(); // Nettoyer les espaces et caractères de contrôle
+// Fonction pour gérer les commandes
+function handleCommand(command, socket, userPseudo) {
+  const cleanCommand = command.trim();
   const [cmd, ...args] = cleanCommand.split(" ");
 
   if (cmd === "/list") {
     const userList = clients.map(client => client.pseudo).join(", ");
     socket.write(`Utilisateurs connectes : ${userList || "Aucun"}\r\n`);
+  } else if (cmd === "/whisper") {
+    handleWhisper(args, socket, userPseudo);
   } else {
-    console.log(cmd);
     socket.write("Commande inconnue.\r\n");
   }
 }
 
+// Fonction pour gérer les chuchotements
+function handleWhisper(args, senderSocket, senderPseudo) {
+  // Si la commande est mal formée
+  if (args.length < 2) {
+    senderSocket.write("Utilisation : /whisper <pseudo> \"<message>\"\r\n");
+    return;
+  }
+
+  const recipientPseudo = args[0];
+  // Joindre les arguments restants pour former le message (qui peut avoir des espaces)
+  const message = args.slice(1).join(" ").trim();
+
+  if (!message.startsWith("\"") || !message.endsWith("\"")) {
+    senderSocket.write("Le message doit etre entre guillemets : /whisper <pseudo> \"<message>\"\r\n");
+    return;
+  }
+
+  // Nettoyer le message en enlevant les guillemets
+  const cleanMessage = message.slice(1, -1);
+
+  // Chercher l'utilisateur destinataire
+  const recipient = clients.find(client => client.pseudo === recipientPseudo);
+
+  if (!recipient) {
+    senderSocket.write(`Utilisateur "${recipientPseudo}" non trouve.\r\n`);
+    return;
+  }
+
+  // Envoyer le message formaté au destinataire
+  recipient.socket.write(`[Whisper][${senderPseudo}] ${cleanMessage}\r\n`);
+
+  // Envoyer une confirmation à l'expéditeur
+  senderSocket.write(`Message envoye a ${recipientPseudo} : ${cleanMessage}\r\n`);
+}
+
+// Diffuser un message à tous les clients sauf l'expéditeur
 function broadcast(message, senderSocket) {
   clients.forEach(client => {
     if (client.socket !== senderSocket) {
