@@ -1,0 +1,6 @@
+# Dossier node_modules
+node_modules/
+
+# Fichiers de configuration d'IDE
+.vscode/
+.idea/
