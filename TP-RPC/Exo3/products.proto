@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package products;
+
+// Définition du service
+service ProductService {
+  rpc AddProduct (Product) returns (AddProductResponse);
+  rpc UpdateProduct (Product) returns (UpdateProductResponse);
+  rpc DeleteProduct (DeleteRequest) returns (DeleteProductResponse);
+  rpc GetProducts (Empty) returns (ProductList);
+}
+
+// Messages utilisés par le service
+message Product {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+}
+
+message AddProductResponse {
+  string message = 1;
+}
+
+message UpdateProductResponse {
+  string message = 1;
+}
+
+message DeleteProductResponse {
+  string message = 1;
+}
+
+message ProductList {
+  repeated Product products = 1;
+}
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message Empty {}

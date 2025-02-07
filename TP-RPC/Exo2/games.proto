@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package games;
+
+// Définition du service
+service GameService {
+  rpc GetGames (Empty) returns (GameList);
+}
+
+// Messages utilisés par le service
+message Game {
+  string id = 1;
+  string title = 2;
+  string genre = 3;
+  string platform = 4;
+}
+
+message GameList {
+  repeated Game games = 1;
+}
+
+message Empty {}
