@@ -1,0 +1,8 @@
+-  docker run --rm -it --entrypoint /keygen.sh linuxserver/openssh-server
+Please select your key type to generate
+- docker run -d --name openssh-server -e USER_NAME=user -e PUBLIC_KEY="$(cat ~/.ssh/test/id_rsa.pub)" -p 2222:2222 linuxserver/openssh-server
+4a111e18cf3f13948b21dcf8f58f798f91bf5843d4c5994a8f149e07b9c4180e
+- icacls C:\Users\hjlilou\.ssh\test\id_rsa /inheritance:r /grant hjlilou:F
+- ssh -i ~/.ssh/test/id_rsa user@localhost -p 2222
+- ssh -i ~/.ssh/test/id_rsa user@localhost -p 2222 ls
+- scp -i C:\Users\hjlilou\.ssh\test\id_rsa -P 2222 C:\Users\hjlilou\Mon_Fichier.txt user@localhost:~/Mon_Fichier.txt
